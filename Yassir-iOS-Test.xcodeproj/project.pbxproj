@@ -16,6 +16,7 @@
 		752B68132CF8A38A00D1526D /* Yassir_iOS_TestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752B68122CF8A38A00D1526D /* Yassir_iOS_TestTests.swift */; };
 		752B681D2CF8A38A00D1526D /* Yassir_iOS_TestUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752B681C2CF8A38A00D1526D /* Yassir_iOS_TestUITests.swift */; };
 		752B681F2CF8A38A00D1526D /* Yassir_iOS_TestUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752B681E2CF8A38A00D1526D /* Yassir_iOS_TestUITestsLaunchTests.swift */; };
+		752B682D2CF8A3B300D1526D /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 752B682C2CF8A3B300D1526D /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				752B682D2CF8A3B300D1526D /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +145,9 @@
 			dependencies = (
 			);
 			name = "Yassir-iOS-Test";
+			packageProductDependencies = (
+				752B682C2CF8A3B300D1526D /* SnapKit */,
+			);
 			productName = "Yassir-iOS-Test";
 			productReference = 752B67F82CF8A38700D1526D /* Yassir-iOS-Test.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +220,9 @@
 				Base,
 			);
 			mainGroup = 752B67EF2CF8A38700D1526D;
+			packageReferences = (
+				752B682B2CF8A3B300D1526D /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			productRefGroup = 752B67F92CF8A38700D1526D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -601,6 +609,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		752B682B2CF8A3B300D1526D /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		752B682C2CF8A3B300D1526D /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 752B682B2CF8A3B300D1526D /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 752B67F02CF8A38700D1526D /* Project object */;
 }
