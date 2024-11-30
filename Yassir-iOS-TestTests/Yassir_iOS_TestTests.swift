@@ -1,36 +1,130 @@
-//
-//  Yassir_iOS_TestTests.swift
-//  Yassir-iOS-TestTests
-//
-//  Created by Kareem Badr on 28/11/2024.
-//
-
 import XCTest
+@preconcurrency import Combine
 @testable import Yassir_iOS_Test
 
 final class Yassir_iOS_TestTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    override func setUp() {
+        super.setUp()
+        mockCharacterRepository = MockCharacterRepository()
+        viewModel = CharactersListViewModel(characterRepository: mockCharacterRepository)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    override func tearDown() {
+        viewModel = nil
+        super.tearDown()
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    
+    func test_viewDidLoadTrigger_getsCharactersWithInitialState() {
+        // Given
+        let recorder = mockCharacterRepository.getCharactersTrigger.recorder(count: 1)
+        
+        // When
+        viewModel.input.viewDidLoadTrigger.send()
+        let records = recorder.record()
+        
+        // Then
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.0, 1)
+        XCTAssertEqual(records.first?.1, nil)
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func test_loadData_updatesViewState_toLoading() {
+        // Given
+        let recorder = viewModel.output.$viewState.recorder(count: 2)
+        
+        // When
+        viewModel.input.viewDidLoadTrigger.send()
+        let records = recorder.record()
+        
+        // Then
+        XCTAssertEqual(
+            records,
+            [
+                .idle, // Initial value
+                .loading(isUserInteractionEnabled: true)
+            ]
+        )
+    }
+    
+    func test_loadData_updatesDataSource_whenGetCharactersSucceeds() {
+        // Given
+        let recorder = viewModel.output.$dataSource.recorder(count: 2)
+        let characters: [Character] = [
+            .testableInstance(),
+            .testableInstance(),
+            .testableInstance()
+        ]
+        
+        let expectedViewModels = makeViewModels(from: characters)
+        
+        mockCharacterRepository.getCharactersResult = .success(.testableInstance(data: characters))
+        
+        // When
+        viewModel.input.viewDidLoadTrigger.send()
+        let records = recorder.record()
+        
+        // Then
+        XCTAssertEqual(
+            records,
+            [
+                [],
+                expectedViewModels
+            ]
+        )
+    }
+    
+    func test_loadData_updatesViewState_toIdle_whenGetCharactersSucceeds() {
+        // Given
+        let recorder = viewModel.output.$viewState.recorder(count: 3)
+        let characters: [Character] = [
+            .testableInstance(),
+            .testableInstance(),
+            .testableInstance()
+        ]
+        
+        mockCharacterRepository.getCharactersResult = .success(.testableInstance(data: characters))
+        
+        // When
+        viewModel.input.viewDidLoadTrigger.send()
+        let records = recorder.record()
+        
+        // Then
+        XCTAssertEqual(
+            records,
+            [
+                .idle,
+                .loading(isUserInteractionEnabled: true),
+                .idle
+            ]
+        )
+    }
+    
+    private func makeViewModels(from characters: [Character]) -> [CharacterTableViewCellViewModel] {
+        characters.map { character in
+            CharacterTableViewCellViewModel(
+                character: character,
+                onTap: { }
+            )
         }
     }
+    
+    private var mockCharacterRepository: MockCharacterRepository!
+    private var viewModel: CharactersListViewModel!
+}
 
+
+final class MockCharacterRepository: CharacterRepository {
+    let getCharactersTrigger = PassthroughSubject<(Int, CharacterStatus?), Never>()
+    var getCharactersResult: Result<PaginatedResponse<Character>, Error> = .failure(MockError.unknown)
+    func getCharacters(
+        page: Int,
+        status: CharacterStatus?
+    ) async throws -> PaginatedResponse<Character> {
+        getCharactersTrigger.send((page, status))
+        return try getCharactersResult.get()
+    }
+}
+
+enum MockError: Error {
+    case unknown
 }
